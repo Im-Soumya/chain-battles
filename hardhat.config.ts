@@ -25,11 +25,11 @@ const config: HardhatUserConfig = {
         localhost: {
             chainId: 31337,
         },
-        sepolia: {
+        mumbai: {
             url: MUMBAI_RPC_URL,
             accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
             saveDeployments: true,
-            chainId: 11155111,
+            chainId: 80001,
         },
     },
     etherscan: {
