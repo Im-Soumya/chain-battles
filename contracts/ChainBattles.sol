@@ -13,24 +13,53 @@ contract ChainBattles is ERC721URIStorage {
   using Strings for uint256;
   using Counters for Counters.Counter;
 
+  struct Details {
+    uint256 level;
+    uint256 strength;
+    uint256 attack;
+    uint256 speed;
+    uint256 life;
+  }
+
   Counters.Counter private _tokenIds;
-  mapping(uint256 => uint256) public tokenIdToLevels;
+  mapping(uint256 => Details) public tokenIdToDetails;
 
   event NFTMinted(uint256 indexed tokenId);
 
   constructor() ERC721("Chain Battles", "CBTLS") {}
+
+  function generateRandom(uint256 number) public view returns (uint256) {
+    return
+      uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender))) % number;
+  }
 
   function generateCharacter(uint256 _tokenId) public view returns (string memory) {
     bytes memory svg = abi.encodePacked(
       '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
       "<style>.base { fill: white; font-family: serif; font-size: 14px; }</style>",
       '<rect width="100%" height="100%" fill="black" />',
-      '<text x="50%" y="40%" class="base" dominant-baseline="middle" text-anchor="middle">',
+      '<text x="50%" y="30%" class="base" dominant-baseline="middle" text-anchor="middle">',
       "Warrior",
       "</text>",
-      '<text x="50%" y="50%" class="base" dominant-baseline="middle" text-anchor="middle">',
+      '<text x="50%" y="40%" class="base" dominant-baseline="middle" text-anchor="middle">',
       "Levels: ",
-      getLevels(_tokenId),
+      getLevel(_tokenId),
+      "</text>",
+      '<text x="50%" y="50%" class="base" dominant-baseline="middle" text-anchor="middle">',
+      "Strength: ",
+      getStrength(_tokenId),
+      "</text>",
+      '<text x="50%" y="60%" class="base" dominant-baseline="middle" text-anchor="middle">',
+      "Attack: ",
+      getAttack(_tokenId),
+      "</text>",
+      '<text x="50%" y="70%" class="base" dominant-baseline="middle" text-anchor="middle">',
+      "Speed: ",
+      getSpeed(_tokenId),
+      "</text>",
+      '<text x="50%" y="80%" class="base" dominant-baseline="middle" text-anchor="middle">',
+      "Life: ",
+      getLife(_tokenId),
       "</text>",
       "</svg>"
     );
@@ -58,7 +87,13 @@ contract ChainBattles is ERC721URIStorage {
     _tokenIds.increment();
     uint256 newItemTokenId = _tokenIds.current();
     _safeMint(msg.sender, newItemTokenId);
-    tokenIdToLevels[newItemTokenId] = 0;
+    tokenIdToDetails[newItemTokenId] = Details(
+      0,
+      generateRandom(200),
+      generateRandom(100),
+      generateRandom(60),
+      generateRandom(100)
+    );
     _setTokenURI(newItemTokenId, getTokenURI(newItemTokenId));
 
     emit NFTMinted(newItemTokenId);
@@ -72,8 +107,12 @@ contract ChainBattles is ERC721URIStorage {
       revert ChainBattles__NotOwner();
     }
 
-    uint256 currentLevel = tokenIdToLevels[_tokenId];
-    tokenIdToLevels[_tokenId] = currentLevel + 1;
+    Details storage details = tokenIdToDetails[_tokenId];
+    details.level += 1;
+    details.strength += 10;
+    details.attack += 10;
+    details.speed += 7;
+    details.life += 3;
     _setTokenURI(_tokenId, getTokenURI(_tokenId));
   }
 
@@ -81,8 +120,32 @@ contract ChainBattles is ERC721URIStorage {
     return _tokenIds.current();
   }
 
-  function getLevels(uint256 _tokenId) public view returns (string memory) {
-    uint256 levels = tokenIdToLevels[_tokenId];
-    return levels.toString();
+  function getDetails(uint256 _tokenId) public view returns (Details memory details) {
+    return details = tokenIdToDetails[_tokenId];
+  }
+
+  function getLevel(uint256 _tokenId) public view returns (string memory) {
+    Details memory details = tokenIdToDetails[_tokenId];
+    return details.level.toString();
+  }
+
+  function getStrength(uint256 _tokenId) public view returns (string memory) {
+    Details memory details = tokenIdToDetails[_tokenId];
+    return details.strength.toString();
+  }
+
+  function getSpeed(uint256 _tokenId) public view returns (string memory) {
+    Details memory details = tokenIdToDetails[_tokenId];
+    return details.speed.toString();
+  }
+
+  function getAttack(uint256 _tokenId) public view returns (string memory) {
+    Details memory details = tokenIdToDetails[_tokenId];
+    return details.attack.toString();
+  }
+
+  function getLife(uint256 _tokenId) public view returns (string memory) {
+    Details memory details = tokenIdToDetails[_tokenId];
+    return details.life.toString();
   }
 }

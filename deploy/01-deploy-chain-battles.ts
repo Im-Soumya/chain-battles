@@ -2,7 +2,7 @@ import { DeployFunction } from "hardhat-deploy/dist/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import verify from "../utils/verify";
-import { developmentChains } from "../helper-hardhat-config";
+import { VERIFICATION_BLOCK_CONFIRMATIONS, developmentChains } from "../helper-hardhat-config";
 
 const deployChainBattles: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts, network } = hre
@@ -15,7 +15,7 @@ const deployChainBattles: DeployFunction = async (hre: HardhatRuntimeEnvironment
         from: deployer,
         args: [],
         log: true,
-        waitConfirmations: 5
+        waitConfirmations: developmentChains.includes(network.name) ? 1 : VERIFICATION_BLOCK_CONFIRMATIONS
     })
     
     log("-------------------------------")
